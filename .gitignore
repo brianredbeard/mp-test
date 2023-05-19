@@ -1,4 +1,13 @@
+# Ignores for the ESP-IDF
 sdkconfig
 dependencies.lock
-build
+build/
+
+# Ignores for MicroPython submodule
 components/micropython/*
+
+# Ignores for MicroPython partition definition
+/partitions.csv
+
+# Ignores for basic Python
+.cache
