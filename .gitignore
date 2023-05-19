@@ -1,3 +1,4 @@
+sdkconfig
 dependencies.lock
 build
 components/micropython/*
