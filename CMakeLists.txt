@@ -41,6 +41,7 @@ set(EXTRA_COMPONENT_DIRS ./obsolete_components)
 #    cmake_path(SET MICROPY_BOARD_DIR "${MICROPY_PORT_DIR}/boards/${MICROPY_BOARD}")
 #endif()
 if(NOT EXISTS ${MICROPY_BOARD_DIR}/mpconfigboard.cmake)
+    message(WARNING "Unable to locate board file ${MICROPY_BOARD_DIR}/mpconfigboard.cmake")
     message(FATAL_ERROR "Invalid MICROPY_BOARD specified: ${MICROPY_BOARD}")
 endif()
 
