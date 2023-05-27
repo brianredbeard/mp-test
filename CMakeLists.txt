@@ -13,7 +13,6 @@ message(STATUS "Clearing cache")
 unset(EXTMODS CACHE)
 unset(EXTMODS_NAMES CACHE)
 unset(EXTMODS_INIT CACHE)
-include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 # Set the board if it's not already set.
 if(DEFINED ENV{MICROPY_BOARD})
@@ -100,4 +99,15 @@ endforeach()
 configure_file(${CMAKE_BINARY_DIR}/sdkconfig.combined.in ${CMAKE_BINARY_DIR}/sdkconfig.combined COPYONLY)
 set(SDKCONFIG_DEFAULTS ${CMAKE_BINARY_DIR}/sdkconfig.combined)
 
+#include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+
 project(mp-test)
+
+include(FetchContent)
+FetchContent_Declare(
+    micropython
+    GIT_REPOSITORY    https://github.com/micropython/micropython.git
+    GIT_TAG           v1.20.0
+    GIT_SHALLOW       ON
+    SOURCE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/external/micropython
+)
