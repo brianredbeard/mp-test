@@ -1,86 +1,10 @@
-# Top-level cmake file for building MicroPython on ESP32.
+# Component-level cmake file for building MicroPython on ESP32.
 
 cmake_minimum_required(VERSION 3.12)
 
-
-set(BOARD DEFAULT)
-cmake_path(SET MICROPY_BOARD_DIR NORMALIZE "${PROJECT_DIR}/boards/${BOARD}")
-
-cmake_path(SET MICROPY_DIR NORMALIZE "${PROJECT_DIR}/external/micropython")
-cmake_path(ABSOLUTE_PATH MICROPY_DIR)
-cmake_path(SET MICROPY_PORT_DIR NORMALIZE "${MICROPY_DIR}/ports/esp32")
-
-# Set the location of this port's directory.
-
-# Set the board if it's not already set.
-if(NOT MICROPY_BOARD)
-    set(MICROPY_BOARD "${BOARD}")
+if(NOT DEFINED MICROPY_DIR)
+    get_filename_component(MICROPY_DIR ${PROJECT_DIR}/external/micropython ABSOLUTE)
 endif()
-
-# Set the board directory and check that it exists.
-#if(NOT MICROPY_BOARD_DIR)
-#    cmake_path(SET MICROPY_BOARD_DIR "${MICROPY_PORT_DIR}/boards/${MICROPY_BOARD}")
-#endif()
-if(NOT EXISTS ${MICROPY_BOARD_DIR}/mpconfigboard.cmake)
-    message(FATAL_ERROR "Invalid MICROPY_BOARD specified: ${MICROPY_BOARD}")
-endif()
-
-# Include main IDF cmake file.
-#include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-
-# Define the output sdkconfig so it goes in the build directory.
-set(SDKCONFIG ${CMAKE_BINARY_DIR}/sdkconfig)
-
-# Save the manifest file set from the cmake command line.
-set(MICROPY_USER_FROZEN_MANIFEST ${MICROPY_FROZEN_MANIFEST})
-
-# Include board config; this is expected to set SDKCONFIG_DEFAULTS (among other options).
-include(${MICROPY_BOARD_DIR}/mpconfigboard.cmake)
-
-# Set the frozen manifest file. Note if MICROPY_FROZEN_MANIFEST is set from the cmake
-# command line, then it will override the default and any manifest set by the board.
-if (MICROPY_USER_FROZEN_MANIFEST)
-    set(MICROPY_FROZEN_MANIFEST ${MICROPY_USER_FROZEN_MANIFEST})
-elseif (NOT MICROPY_FROZEN_MANIFEST)
-    set(MICROPY_FROZEN_MANIFEST ${MICROPY_PORT_DIR}/boards/manifest.py)
-endif()
-
-# Add sdkconfig fragments that depend on the IDF version.
-if(IDF_VERSION_MAJOR EQUAL 4 AND IDF_VERSION_MINOR LESS 2)
-    set(SDKCONFIG_DEFAULTS ${SDKCONFIG_DEFAULTS} boards/sdkconfig.nimble_core0)
-else()
-    set(SDKCONFIG_DEFAULTS ${SDKCONFIG_DEFAULTS} boards/sdkconfig.nimble_core1)
-endif()
-
-# Concatenate all sdkconfig files into a combined one for the IDF to use.
-file(WRITE ${CMAKE_BINARY_DIR}/sdkconfig.combined.in "")
-foreach(SDKCONFIG_DEFAULT ${SDKCONFIG_DEFAULTS})
-    #This is a bit of a deep mind-warp.  Due to how CMake caches variables, we actually want to generate a dynamic variable name to avoid any potential cache conflicts.
-    find_file(sdk_${SDKCONFIG_DEFAULT} ${SDKCONFIG_DEFAULT}
-        PATHS
-          "${PROJECT_DIR}"
-          "${MICROPY_BOARD_DIR}"
-          "${MICROPY_PORT_DIR}"
-          "${MICROPY_PORT_DIR}/boards"
-          NO_CACHE)
-
-#    message(STATUS "...............checking $sdkfile  ${sdkfile}")
-#    message(STATUS "...............checking sdkfile   " sdkfile)
-    if("sdk_${SDKCONFIG_DEFAULT}" EQUAL "sdk_${SDKCONFIG_DEFAULT}-NOTFOUND")
-        message(WARNING "Unable to to locate SDKCONFIG_DEFAULT file ${sdkfile}")
-    else()
-
-        file(REAL_PATH ${sdk_${SDKCONFIG_DEFAULT}} sdk_real_path)
-        file(RELATIVE_PATH sdk_rel_path "${PROJECT_DIR}" "${sdk_real_path}")
-
-        configure_file(${sdk_${SDKCONFIG_DEFAULT}} "${CMAKE_BINARY_DIR}/${sdk_rel_path}" COPYONLY)
-        file(READ ${sdk_${SDKCONFIG_DEFAULT}} CONTENTS)
-        file(APPEND ${CMAKE_BINARY_DIR}/sdkconfig.combined.in "${CONTENTS}")
-    endif()
-
-endforeach()
-configure_file(${CMAKE_BINARY_DIR}/sdkconfig.combined.in ${CMAKE_BINARY_DIR}/sdkconfig.combined COPYONLY)
-set(SDKCONFIG_DEFAULTS ${CMAKE_BINARY_DIR}/sdkconfig.combined)
 
 # Include core source components.
 include(${MICROPY_DIR}/py/py.cmake)
@@ -117,7 +41,6 @@ set(MICROPY_SOURCE_LIB
     ${MICROPY_DIR}/lib/oofatfs/ff.c
     ${MICROPY_DIR}/lib/oofatfs/ffunicode.c
 )
-
 if(IDF_TARGET STREQUAL "esp32c3")
     list(APPEND MICROPY_SOURCE_LIB ${MICROPY_DIR}/shared/runtime/gchelper_generic.c)
 endif()
@@ -136,6 +59,7 @@ set(MICROPY_SOURCE_PORT
     ${MICROPY_PORT_DIR}/mphalport.c
     ${MICROPY_PORT_DIR}/fatfs_port.c
     ${MICROPY_PORT_DIR}/help.c
+    ${MICROPY_PORT_DIR}/modutime.c
     ${MICROPY_PORT_DIR}/machine_bitstream.c
     ${MICROPY_PORT_DIR}/machine_timer.c
     ${MICROPY_PORT_DIR}/machine_pin.c
@@ -256,7 +180,7 @@ idf_component_register(
         ${IDF_COMPONENTS}
 )
 
-message(STATUS "........ building COMPONENT_TARGET: ${COMPONENT_TARGET}.....")
+#message(STATUS "........ building COMPONENT_TARGET: ${COMPONENT_TARGET}.....")
 # Set the MicroPython target as the current (main) IDF component target.
 set(MICROPY_TARGET ${COMPONENT_TARGET})
 
