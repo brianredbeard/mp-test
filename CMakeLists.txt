@@ -14,6 +14,8 @@ unset(EXTMODS CACHE)
 unset(EXTMODS_NAMES CACHE)
 unset(EXTMODS_INIT CACHE)
 
+project(mp-test)
+
 # Set the board if it's not already set.
 if(DEFINED ENV{MICROPY_BOARD})
     set(board "$ENV{MICROPY_BOARD}")
@@ -31,6 +33,21 @@ cmake_path(SET MICROPY_DIR NORMALIZE "${CMAKE_CURRENT_SOURCE_DIR}/external/micro
 #cmake_path(RELATIVE_PATH MICROPY_DIR)
 cmake_path(SET MICROPY_PORT_DIR NORMALIZE "${MICROPY_DIR}/ports/esp32")
 
+
+include(ExternalProject)
+ExternalProject_Add(
+    micropython
+    GIT_PROGRESS      ON
+    GIT_REPOSITORY    https://github.com/micropython/micropython.git
+    GIT_TAG           master
+    GIT_SHALLOW       ON
+    GIT_SUBMODULES_RECURSE ON
+    SOURCE_SUBDIR     ports/esp32
+    CMAKE_ARGS        -DMICROPY_BOARD=${board} -DMICROPY_BOARD_DIR=${MICROPY_BOARD_DIR}
+    
+    SOURCE_DIR        "${CMAKE_CURRENT_SOURCE_DIR}/external/micropython"
+    BUILD_IN_SOURCE   OFF
+)
 set(EXTRA_COMPONENT_DIRS ./obsolete_components)
 
 # Set the location of this port's directory.
@@ -101,13 +118,4 @@ set(SDKCONFIG_DEFAULTS ${CMAKE_BINARY_DIR}/sdkconfig.combined)
 
 #include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
-project(mp-test)
 
-include(FetchContent)
-FetchContent_Declare(
-    micropython
-    GIT_REPOSITORY    https://github.com/micropython/micropython.git
-    GIT_TAG           v1.20.0
-    GIT_SHALLOW       ON
-    SOURCE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/external/micropython
-)

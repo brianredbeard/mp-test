@@ -33,7 +33,7 @@ set(IDF_COMPONENTS
     wpa_supplicant
 )
 
-idf_component_register(SRCS "mp-test.c"
+idf_component_register(
                     REQUIRES micropython
                     INCLUDE_DIRS ".")
 
