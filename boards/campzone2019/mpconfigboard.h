@@ -1,0 +1,2 @@
+#define MICROPY_HW_BOARD_NAME "Campzone 2019 Badge"
+#define MICROPY_HW_MCU_NAME "ESP32"
