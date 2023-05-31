@@ -88,6 +88,7 @@ set(MICROPY_SOURCE_PORT
     ${MICROPY_PORT_DIR}/mpthreadport.c
     ${MICROPY_PORT_DIR}/machine_rtc.c
     ${MICROPY_PORT_DIR}/machine_sdcard.c
+    ${MICROPY_PORT_DIR}/modespnow.c
 )
 
 set(MICROPY_SOURCE_QSTR
