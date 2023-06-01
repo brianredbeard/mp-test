@@ -1,0 +1,22 @@
+{
+    "deploy": [
+        "../deploy.md"
+    ],
+    "docs": "",
+    "features": [
+        "BLE",
+        "WiFi"
+    ],
+    "id": "esp32",
+    "images": [
+        "esp32_devkitc.jpg"
+    ],
+    "mcu": "esp32",
+    "product": "Hackzone 2020 Badge",
+    "thumbnail": "",
+    "url": "https://badge.team/docs/badges/campzone-2020"
+    "variants": {
+        "idf3": "Compiled with IDF 3.x"
+    },
+    "vendor": "Hackzone"
+}

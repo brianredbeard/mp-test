@@ -1,2 +1,2 @@
-
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="boards/campzone2019/campzone2019.csv"
 
